@@ -11,6 +11,9 @@
     <meta property="og:description" content="A comprehensive benchmark with 330K video clips and 4.9K test tasks.">
     <meta property="og:type" content="website">
     
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
@@ -99,7 +102,7 @@
             position: relative;
             padding: 7.5rem 2rem 6rem;
             text-align: center;
-            min-height: 60vh;
+            min-height: 100vh;  /* 改为100vh，确保首屏全屏显示封面 */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -646,10 +649,11 @@
         
         .video-item video {
             width: 100%;
-            max-width: 450px;
-            height: auto;
+            height: 250px;          
+            object-fit: cover;     
             border-radius: 8px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            background-color: #000; 
         }
         
         .video-label {
@@ -818,10 +822,6 @@
             <div class="byline-column">
                 <h3>Authors</h3>
                 <p><a href="#" class="author-link">Anonymous Author<sup>1</sup></a></p>
-            </div>
-            <div class="byline-column">
-                <h3 style="visibility: hidden">Authors</h3>
-                <p><a href="#" class="author-link">Anonymous Author<sup>2</sup></a></p>
             </div>
         </div>
         <div class="byline-container">
@@ -1169,10 +1169,10 @@
             <!-- Generation Quality -->
             <div class="metric-subtitle">Generation Quality</div>
             <div class="metric-buttons">
-                <button class="metric-button active" onclick="showMetric('image-quality')">Image Quality</button>
-                <button class="metric-button" onclick="showMetric('brightness')">Brightness Consistency</button>
-                <button class="metric-button" onclick="showMetric('color')">Color Temperature</button>
-                <button class="metric-button" onclick="showMetric('sharpness')">Sharpness Retention</button>
+                <button class="metric-button active" onclick="showMetric(event, 'image-quality')">Image Quality</button>
+                <button class="metric-button" onclick="showMetric(event, 'brightness')">Brightness Consistency</button>
+                <button class="metric-button" onclick="showMetric(event, 'color')">Color Temperature</button>
+                <button class="metric-button" onclick="showMetric(event, 'sharpness')">Sharpness Retention</button>
             </div>
             
             <div id="image-quality" class="metric-content">
@@ -1181,16 +1181,16 @@
                 </p>
                 <div class="video-grid">
                     <div class="video-item">
-                        <video controls poster="static/videos/poster1.jpg">
-                            <source src="static/videos/1.mp4" type="video/mp4">
+                        <video controls muted poster="static/videos/poster1.jpg">
+                            <source src="static/videos/76.67_Consistent Image Quality.mp4" type="video/mp4">
                         </video>
-                        <div class="video-label">Example 1</div>
+                        <div class="video-label">Score: 76.67</div>
                     </div>
                     <div class="video-item">
-                        <video controls poster="static/videos/poster2.jpg">
-                            <source src="static/videos/2.mp4" type="video/mp4">
+                        <video controls muted poster="static/videos/poster2.jpg">
+                            <source src="static/videos/28.17_Inconsistent Image Quality.mp4" type="video/mp4">
                         </video>
-                        <div class="video-label">Example 2</div>
+                        <div class="video-label">Score: 28.17</div>
                     </div>
                 </div>
             </div>
@@ -1201,16 +1201,16 @@
                 </p>
                 <div class="video-grid">
                     <div class="video-item">
-                        <video controls poster="static/videos/poster3.jpg">
-                            <source src="static/videos/3.mp4" type="video/mp4">
+                        <video controls muted poster="static/videos/poster3.jpg">
+                            <source src="static/videos/99.65_Consistent Brightness.mp4" type="video/mp4">
                         </video>
-                        <div class="video-label">Example 1</div>
+                        <div class="video-label">Score: 99.65</div>
                     </div>
                     <div class="video-item">
-                        <video controls poster="static/videos/poster4.jpg">
-                            <source src="static/videos/4.mp4" type="video/mp4">
+                        <video controls muted poster="static/videos/poster4.jpg">
+                            <source src="static/videos/0.32_Inconsistent Brightness.mp4" type="video/mp4">
                         </video>
-                        <div class="video-label">Example 2</div>
+                        <div class="video-label">Score: 0.32</div>
                     </div>
                 </div>
             </div>
@@ -1221,16 +1221,16 @@
                 </p>
                 <div class="video-grid">
                     <div class="video-item">
-                        <video controls poster="static/videos/poster5.jpg">
-                            <source src="static/videos/5.mp4" type="video/mp4">
+                        <video controls muted poster="static/videos/poster5.jpg">
+                            <source src="static/videos/98.50_Consistent Color Temperature.mp4" type="video/mp4">
                         </video>
-                        <div class="video-label">Example 1</div>
+                        <div class="video-label">Score: 98.50</div>
                     </div>
                     <div class="video-item">
-                        <video controls poster="static/videos/poster6.jpg">
-                            <source src="static/videos/6.mp4" type="video/mp4">
+                        <video controls muted poster="static/videos/poster6.jpg">
+                            <source src="static/videos/10.10_Inconsistent Color Temperature.mp4" type="video/mp4">
                         </video>
-                        <div class="video-label">Example 2</div>
+                        <div class="video-label">Score: 10.10</div>
                     </div>
                 </div>
             </div>
@@ -1241,16 +1241,16 @@
                 </p>
                 <div class="video-grid">
                     <div class="video-item">
-                        <video controls poster="static/videos/poster7.jpg">
-                            <source src="static/videos/7.mp4" type="video/mp4">
+                        <video controls muted poster="static/videos/poster7.jpg">
+                            <source src="static/videos/99.19_onsistent Sharpness Retention.mp4" type="video/mp4">
                         </video>
-                        <div class="video-label">Example 1</div>
+                        <div class="video-label">Score: 99.19</div>
                     </div>
                     <div class="video-item">
-                        <video controls poster="static/videos/poster8.jpg">
-                            <source src="static/videos/8.mp4" type="video/mp4">
+                        <video controls muted poster="static/videos/poster8.jpg">
+                            <source src="static/videos/2.40_Inconsistent Sharpness Retention.mp4" type="video/mp4">
                         </video>
-                        <div class="video-label">Example 2</div>
+                        <div class="video-label">Score: 2.40</div>
                     </div>
                 </div>
             </div>
@@ -1258,9 +1258,9 @@
             <!-- Trajectory Following -->
             <div class="metric-subtitle">Trajectory Following</div>
             <div class="metric-buttons">
-                <button class="metric-button active" onclick="showMetric2('motion')">Motion Smoothness</button>
-                <button class="metric-button" onclick="showMetric2('accuracy')">Trajectory Accuracy</button>
-                <button class="metric-button" onclick="showMetric2('tolerance')">Trajectory Tolerance</button>
+                <button class="metric-button active" onclick="showMetric2(event, 'motion')">Motion Smoothness</button>
+                <button class="metric-button" onclick="showMetric2(event, 'accuracy')">Trajectory Accuracy</button>
+                <button class="metric-button" onclick="showMetric2(event, 'tolerance')">Trajectory Tolerance</button>
             </div>
             
             <div id="motion" class="metric-content2">
@@ -1269,13 +1269,13 @@
                 </p>
                 <div class="video-grid">
                     <div class="video-item">
-                        <video controls poster="static/videos/poster9.jpg">
+                        <video controls muted poster="static/videos/poster9.jpg">
                             <source src="static/videos/9.mp4" type="video/mp4">
                         </video>
                         <div class="video-label">Example 1</div>
                     </div>
                     <div class="video-item">
-                        <video controls poster="static/videos/poster10.jpg">
+                        <video controls muted poster="static/videos/poster10.jpg">
                             <source src="static/videos/10.mp4" type="video/mp4">
                         </video>
                         <div class="video-label">Example 2</div>
@@ -1289,13 +1289,13 @@
                 </p>
                 <div class="video-grid">
                     <div class="video-item">
-                        <video controls poster="static/videos/poster11.jpg">
+                        <video controls muted poster="static/videos/poster11.jpg">
                             <source src="static/videos/11.mp4" type="video/mp4">
                         </video>
                         <div class="video-label">Example 1</div>
                     </div>
                     <div class="video-item">
-                        <video controls poster="static/videos/poster12.jpg">
+                        <video controls muted poster="static/videos/poster12.jpg">
                             <source src="static/videos/12.mp4" type="video/mp4">
                         </video>
                         <div class="video-label">Example 2</div>
@@ -1309,13 +1309,13 @@
                 </p>
                 <div class="video-grid">
                     <div class="video-item">
-                        <video controls poster="static/videos/poster13.jpg">
+                        <video controls muted poster="static/videos/poster13.jpg">
                             <source src="static/videos/13.mp4" type="video/mp4">
                         </video>
                         <div class="video-label">Example 1</div>
                     </div>
                     <div class="video-item">
-                        <video controls poster="static/videos/poster14.jpg">
+                        <video controls muted poster="static/videos/poster14.jpg">
                             <source src="static/videos/14.mp4" type="video/mp4">
                         </video>
                         <div class="video-label">Example 2</div>
@@ -1326,8 +1326,8 @@
             <!-- Memory Ability -->
             <div class="metric-subtitle">Memory Ability</div>
             <div class="metric-buttons">
-                <button class="metric-button active" onclick="showMetric3('symmetry')">Memory Symmetry</button>
-                <button class="metric-button" onclick="showMetric3('alignment')">Trajectory Alignment</button>
+                <button class="metric-button active" onclick="showMetric3(event, 'symmetry')">Memory Symmetry</button>
+                <button class="metric-button" onclick="showMetric3(event, 'alignment')">Trajectory Alignment</button>
             </div>
             
             <div id="symmetry" class="metric-content3">
@@ -1336,13 +1336,13 @@
                 </p>
                 <div class="video-grid">
                     <div class="video-item">
-                        <video controls poster="static/videos/poster15.jpg">
+                        <video controls muted poster="static/videos/poster15.jpg">
                             <source src="static/videos/15.mp4" type="video/mp4">
                         </video>
                         <div class="video-label">Example 1</div>
                     </div>
                     <div class="video-item">
-                        <video controls poster="static/videos/poster16.jpg">
+                        <video controls muted poster="static/videos/poster16.jpg">
                             <source src="static/videos/16.mp4" type="video/mp4">
                         </video>
                         <div class="video-label">Example 2</div>
@@ -1356,16 +1356,16 @@
                 </p>
                 <div class="video-grid">
                     <div class="video-item">
-                        <video controls poster="static/videos/poster17.jpg">
-                            <source src="static/videos/17.mp4" type="video/mp4">
+                        <video controls muted poster="static/videos/poster17.jpg">
+                            <source src="static/videos/75.34_Consistent Trajectory Alignment.mp4" type="video/mp4">
                         </video>
-                        <div class="video-label">Example 1</div>
+                        <div class="video-label">Score:75.34</div>
                     </div>
                     <div class="video-item">
-                        <video controls poster="static/videos/poster18.jpg">
-                            <source src="static/videos/18.mp4" type="video/mp4">
+                        <video controls muted poster="static/videos/poster18.jpg">
+                            <source src="static/videos/20.75_Inconsistent Trajectory Alignment.mp4" type="video/mp4">
                         </video>
-                        <div class="video-label">Example 2</div>
+                        <div class="video-label">Score:20.75</div>
                     </div>
                 </div>
             </div>
@@ -1578,29 +1578,95 @@
             });
         });
         
-        // Metric buttons for Generation Quality
-        function showMetric(metricId) {
+        function playVideosInContainer(container) {
+            if (!container) return;
+            const videos = container.querySelectorAll('video');
+            videos.forEach(video => {
+                if (video.paused) {
+                    video.play().catch(e => console.log('自动播放失败:', e));
+                }
+            });
+        }
+        
+        function pauseVideosInContainer(container) {
+            if (!container) return;
+            container.querySelectorAll('video').forEach(video => video.pause());
+        }
+        
+        function pauseAllVideos() {
+            document.querySelectorAll('video').forEach(video => video.pause());
+        }
+        
+        function showMetric(event, metricId) {
+            pauseAllVideos();
             document.querySelectorAll('.metric-content').forEach(el => el.style.display = 'none');
-            document.getElementById(metricId).style.display = 'block';
-            document.querySelectorAll('#overview ~ section .metric-buttons:first-of-type .metric-button').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            const target = document.getElementById(metricId);
+            target.style.display = 'block';
+            
+            const buttonGroup = event.target.closest('.metric-buttons');
+            if (buttonGroup) {
+                buttonGroup.querySelectorAll('.metric-button').forEach(btn => btn.classList.remove('active'));
+                event.target.classList.add('active');
+            }
+            
+            playVideosInContainer(target);
         }
         
-        // Metric buttons for Trajectory Following
-        function showMetric2(metricId) {
+        function showMetric2(event, metricId) {
+            pauseAllVideos();
             document.querySelectorAll('.metric-content2').forEach(el => el.style.display = 'none');
-            document.getElementById(metricId).style.display = 'block';
-            document.querySelectorAll('#overview ~ section .metric-buttons:nth-of-type(2) .metric-button').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            const target = document.getElementById(metricId);
+            target.style.display = 'block';
+            
+            const buttonGroup = event.target.closest('.metric-buttons');
+            if (buttonGroup) {
+                buttonGroup.querySelectorAll('.metric-button').forEach(btn => btn.classList.remove('active'));
+                event.target.classList.add('active');
+            }
+            
+            playVideosInContainer(target);
         }
         
-        // Metric buttons for Memory Ability
-        function showMetric3(metricId) {
+        function showMetric3(event, metricId) {
+            pauseAllVideos();
             document.querySelectorAll('.metric-content3').forEach(el => el.style.display = 'none');
-            document.getElementById(metricId).style.display = 'block';
-            document.querySelectorAll('#overview ~ section .metric-buttons:nth-of-type(3) .metric-button').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            const target = document.getElementById(metricId);
+            target.style.display = 'block';
+            
+            const buttonGroup = event.target.closest('.metric-buttons');
+            if (buttonGroup) {
+                buttonGroup.querySelectorAll('.metric-button').forEach(btn => btn.classList.remove('active'));
+                event.target.classList.add('active');
+            }
+            
+            playVideosInContainer(target);
         }
+        
+        window.addEventListener('load', () => {
+            const initialContainers = ['image-quality', 'motion', 'symmetry'];
+            initialContainers.forEach(id => {
+                const container = document.getElementById(id);
+                if (container && container.style.display !== 'none') {
+                    playVideosInContainer(container);
+                }
+            });
+        });
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const container = entry.target;
+                
+                if (window.getComputedStyle(container).display !== 'none') {
+                    if (entry.isIntersecting) {
+                        playVideosInContainer(container);
+                    } else {
+                        pauseVideosInContainer(container); 
+                    }
+                }
+            });
+        }, { threshold: 0.3 });
+        
+        document.querySelectorAll('.metric-content, .metric-content2, .metric-content3').forEach(el => observer.observe(el));
     </script>
 </body>
 </html>
