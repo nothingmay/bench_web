@@ -1,0 +1,1672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iWorld-Bench: A Benchmark for Interactive World Models with a Unified Action Generation Framework</title>
+    <meta name="description" content="iWorld-Bench is a comprehensive benchmark for training and testing interactive world models on interaction-related abilities.">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="iWorld-Bench">
+    <meta property="og:description" content="A comprehensive benchmark with 330K video clips and 4.9K test tasks.">
+    <meta property="og:type" content="website">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --accent: #06b6d4;
+            --text-dark: #1a1a1a;
+            --text-gray: #4a4a4a;
+            --text-light: #666666;
+            --border: #e5e5e5;
+            --bg-light: #f8f9fa;
+            --white: #ffffff;
+            --success: #10b981;
+            --danger: #ef4444;
+            
+            /* Low saturation table colors */
+            --table-header: #64748b;
+            --table-header-light: #94a3b8;
+            --table-border: #cbd5e0;
+            --table-bg-alt: #f8fafc;
+            --table-highlight: #f1f5f9;
+            --best-score-bg: #e6fffa;
+            --best-score-color: #2c7a7b;
+            --category-bg: #e2e8f0;
+            --category-color: #475569;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+            font-size: 15px;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.7;
+            color: var(--text-dark);
+            background: var(--white);
+        }
+        
+        /* Grid Layout */
+        .base-grid {
+            display: grid;
+            grid-template-columns: [screen-start] 1fr [page-start kicker-start] 30px [middle-start] 30px [text-start kicker-end] 55px 55px 55px 55px 55px 55px 55px 55px 55px 55px 55px 55px 55px 55px [text-end gutter-start] 30px [middle-end] 30px [page-end gutter-end] 1fr [screen-end];
+            grid-column-gap: 20px;
+        }
+        
+        @media (max-width: 1600px) {
+            .base-grid {
+                grid-template-columns: [screen-start] 1fr [page-start kicker-start] 25px [middle-start] 25px [text-start kicker-end] 50px 50px 50px 50px 50px 50px 50px 50px 50px 50px 50px 50px 50px [text-end gutter-start] 25px [middle-end] 25px [page-end gutter-end] 1fr [screen-end];
+                grid-column-gap: 16px;
+            }
+        }
+        
+        @media (max-width: 1200px) {
+            .base-grid {
+                grid-template-columns: [screen-start] 1fr [page-start kicker-start middle-start text-start gutter-start] 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr [text-end page-end gutter-end kicker-end middle-end] 1fr [screen-end];
+                grid-column-gap: 12px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .base-grid {
+                grid-template-columns: [screen-start] 16px [page-start kicker-start text-start gutter-start middle-start] 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr [text-end page-end gutter-end kicker-end middle-end] 16px [screen-end];
+                grid-column-gap: 8px;
+            }
+        }
+        
+        .l-text { grid-column: text; }
+        .l-page { grid-column: page; }
+        .l-screen { grid-column: screen; }
+        .l-gutter { grid-column: gutter; }
+        
+        /* Header with gradient background + background image overlay */
+        .header-container {
+            grid-column: screen;
+            position: relative;
+            padding: 7.5rem 2rem 6rem;
+            text-align: center;
+            min-height: 100vh;  /* 改为100vh，确保首屏全屏显示封面 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        /* Background image layer with higher opacity */
+        .header-bg-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('static/images/background.png');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.45;
+            z-index: 0;
+        }
+        
+        /* Gradient overlay with reduced opacity */
+        .header-gradient {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.75) 0%, rgba(22, 33, 62, 0.70) 50%, rgba(15, 52, 96, 0.65) 100%);
+            z-index: 1;
+        }
+        
+        /* Decorative radial gradients with enhanced opacity */
+        .header-decoration {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(ellipse at 20% 80%, rgba(37, 99, 235, 0.4) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(6, 182, 212, 0.35) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(99, 102, 241, 0.25) 0%, transparent 70%);
+            z-index: 2;
+            pointer-events: none;
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 3;
+            width: 100%;
+        }
+        
+        .header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 0.6rem 1.2rem;
+            border-radius: 9999px;
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+        
+        .header-badge i {
+            color: var(--accent);
+        }
+        
+        .header-content h1 {
+            font-size: 5rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+            color: white;
+            text-shadow: 0 4px 30px rgba(0,0,0,0.3);
+            letter-spacing: -0.02em;
+        }
+        
+        .header-stats {
+            display: flex;
+            justify-content: center;
+            gap: 5rem;
+            margin: 3rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .stat-item {
+            text-align: center;
+            color: rgba(255,255,255,0.7);
+            font-size: 1.1rem;
+        }
+        
+        .stat-item strong {
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 1.4em;
+            display: block;
+            margin-bottom: 0.3rem;
+        }
+        
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+        
+        .button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+        }
+        
+        .button-primary {
+            background: rgba(255,255,255,0.15);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.25);
+            backdrop-filter: blur(10px);
+        }
+        
+        .button-primary:hover {
+            background: rgba(255,255,255,0.25);
+            transform: translateY(-2px);
+        }
+        
+        .button-secondary {
+            background: rgba(255,255,255,0.08);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+        
+        .button-secondary:hover {
+            background: rgba(255,255,255,0.15);
+        }
+        
+        /* Authors & Date - New Format */
+        .byline-section {
+            grid-column: text;
+            padding: 3rem 0;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 2rem;
+        }
+        
+        .byline-container {
+            display: flex;
+            justify-content: center;
+            gap: 4rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .byline-column {
+            flex: 1;
+            min-width: 200px;
+            max-width: 300px;
+        }
+        
+        .byline-column h3 {
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--text-light);
+            margin-bottom: 1rem;
+            letter-spacing: 0.1em;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.5rem;
+            text-align: left;
+        }
+        
+        .byline-column p {
+            margin-bottom: 0.6rem;
+            text-align: left;
+            font-size: 0.95rem;
+        }
+        
+        .author-link {
+            color: var(--text-dark);
+            font-weight: 500;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        
+        .author-link:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+        
+        .author-link sup {
+            color: var(--primary);
+            font-weight: 600;
+            margin-left: 0.2rem;
+        }
+        
+        .affiliation-link {
+            color: var(--text-gray);
+            font-weight: 400;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        
+        .affiliation-link:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+        
+        .affiliation-link sup {
+            color: var(--primary);
+            font-weight: 600;
+            margin-left: 0.2rem;
+        }
+        
+        /* Navigation Sidebar */
+        d-contents {
+            grid-column: kicker;
+            position: sticky;
+            top: 2rem;
+            align-self: start;
+            font-size: 0.85rem;
+            line-height: 1.8;
+            padding-left: 0;
+            margin-left: -20px;
+        }
+        
+        d-contents nav {
+            border-left: 2px solid var(--border);
+            padding-left: 1rem;
+        }
+        
+        d-contents h4 {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--text-light);
+            margin-bottom: 0.75rem;
+            letter-spacing: 0.08em;
+        }
+        
+        d-contents a {
+            display: block;
+            color: var(--text-light);
+            text-decoration: none;
+            padding: 0.35rem 0;
+            border-bottom: none;
+            transition: color 0.2s;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+        
+        d-contents a:hover {
+            color: var(--primary);
+        }
+        
+        d-contents a.active {
+            color: var(--primary);
+            font-weight: 500;
+        }
+        
+        /* Article */
+        d-article {
+            grid-column: text;
+            padding: 2rem 0;
+        }
+        
+        d-article > * {
+            grid-column: text;
+        }
+        
+        /* Typography */
+        h2 {
+            font-weight: 600;
+            font-size: 2rem;
+            line-height: 1.3;
+            margin: 3rem 0 1.5rem;
+            color: var(--text-dark);
+            text-align: center;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        
+        h3 {
+            font-weight: 600;
+            font-size: 1.25rem;
+            line-height: 1.4;
+            margin: 2rem 0 1rem;
+            color: var(--text-dark);
+            text-align: left;
+        }
+        
+        h4 {
+            font-weight: 600;
+            font-size: 1rem;
+            margin: 1.5rem 0 0.75rem;
+            color: var(--text-dark);
+        }
+        
+        .metric-subtitle {
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin: 2rem 0 1rem;
+        }
+        
+        p {
+            margin-bottom: 1.2rem;
+            text-align: justify;
+            color: var(--text-gray);
+        }
+        
+        a {
+            color: var(--primary);
+            text-decoration: none;
+            border-bottom: none;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Figures */
+        figure {
+            margin: 2rem 0;
+            text-align: center;
+        }
+        
+        figure img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 6px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        
+        figcaption {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            line-height: 1.6;
+            text-align: left;
+        }
+        
+        figcaption strong {
+            color: var(--text-dark);
+        }
+        
+        /* Tables - Low saturation, no rounded corners */
+        .table-wrapper {
+            margin: 1.5rem 0;
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            background: white;
+            border: 1px solid var(--table-border);
+        }
+        
+        /* Header with lighter colors */
+        thead {
+            background: var(--table-header);
+            color: white;
+        }
+        
+        /* First header row - lighter */
+        thead tr:first-child th {
+            background: var(--table-header);
+            border-bottom: 2px solid rgba(255,255,255,0.3);
+            font-weight: 600;
+        }
+        
+        /* Second header row - even lighter */
+        thead tr:nth-child(2) {
+            background: var(--table-header-light);
+        }
+        
+        thead tr:nth-child(2) th {
+            font-size: 0.8rem;
+            padding: 8px 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            font-weight: 500;
+        }
+        
+        th {
+            padding: 10px 8px;
+            text-align: center;
+            font-weight: 600;
+            border-right: 1px solid rgba(255,255,255,0.15);
+        }
+        
+        th:last-child {
+            border-right: none;
+        }
+        
+        td {
+            padding: 8px;
+            text-align: center;
+            border-bottom: 1px solid var(--table-border);
+            border-right: 1px solid var(--table-border);
+            color: var(--text-gray);
+        }
+        
+        td:last-child {
+            border-right: none;
+        }
+        
+        tbody tr:nth-child(even) {
+            background-color: var(--table-bg-alt);
+        }
+        
+        tbody tr:hover {
+            background-color: var(--table-highlight);
+        }
+        
+        /* Gray highlighted rows (for gray!20 in latex) */
+        .gray-row {
+            background-color: var(--table-highlight) !important;
+        }
+        
+        /* Category row - low saturation gray-blue */
+        .category-row {
+            background: var(--category-bg) !important;
+            font-weight: 600;
+            color: var(--category-color);
+            text-align: left;
+            font-size: 0.85rem;
+        }
+        
+        .category-row td {
+            padding: 10px 15px;
+            color: var(--category-color);
+            border-bottom: 2px solid var(--table-border);
+        }
+        
+        .check { 
+            color: var(--success); 
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        .cross { 
+            color: var(--danger); 
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        /* Best score - subtle teal highlight, no border */
+        .best-score { 
+            font-weight: 700;
+            color: var(--best-score-color);
+            background: var(--best-score-bg);
+        }
+        
+        /* Action tables layout */
+        .action-tables {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 1.5rem 0;
+        }
+        
+        .action-table-container h4 {
+            text-align: center;
+            margin-bottom: 0.5rem;
+            color: var(--table-header);
+            font-size: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .action-tables {
+                grid-template-columns: 1fr;
+            }
+            
+            .byline-container {
+                gap: 2rem;
+            }
+            
+            .header-content h1 {
+                font-size: 3rem;
+            }
+            
+            .header-container {
+                min-height: auto;
+                padding: 5rem 2rem 4rem;
+            }
+        }
+        
+        /* Metric Buttons */
+        .metric-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 1.5rem 0;
+            flex-wrap: nowrap;
+        }
+        
+        .metric-button {
+            padding: 10px 20px;
+            border: 2px solid #e0e0e0;
+            background-color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-gray);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        
+        .metric-button:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        
+        .metric-button.active {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        /* Video Grid */
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            margin: 1.5rem 0;
+        }
+        
+        .video-item {
+            text-align: center;
+        }
+        
+        .video-item video {
+            width: 100%;
+            height: 250px;          
+            object-fit: cover;     
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            background-color: #000; 
+        }
+        
+        .video-label {
+            margin-top: 0.75rem;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+        
+        /* BibTeX */
+        .bibtex-box {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            position: relative;
+            margin: 1.5rem 0;
+            border: 1px solid var(--border);
+        }
+        
+        .bibtex-box pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            color: var(--text-gray);
+            line-height: 1.6;
+        }
+        
+        .copy-btn {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            background: white;
+            border: 1px solid var(--border);
+            color: var(--text-gray);
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+        
+        .copy-btn:hover {
+            background: var(--bg-light);
+            border-color: var(--text-gray);
+        }
+        
+        /* Lists */
+        ul, ol {
+            padding-left: 1.5rem;
+            margin-bottom: 1.2rem;
+        }
+        
+        li {
+            margin-bottom: 0.5rem;
+            color: var(--text-gray);
+        }
+        
+        /* Responsive */
+        @media (max-width: 1200px) {
+            d-contents {
+                display: none;
+            }
+            
+            .header-content h1 {
+                font-size: 3.5rem;
+            }
+            
+            .metric-buttons {
+                flex-wrap: wrap;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header-content h1 {
+                font-size: 2.5rem;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+            
+            .video-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .metric-buttons {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            
+            .metric-button {
+                padding: 8px 14px;
+                font-size: 0.8rem;
+            }
+        }
+        
+        /* Footer */
+        footer {
+            grid-column: screen;
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            padding: 2.5rem;
+            text-align: center;
+            margin-top: 3rem;
+            border-top: 1px solid var(--border);
+        }
+        
+        footer p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+        
+        footer a {
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body class="base-grid">
+    <!-- Header with gradient background + background image overlay -->
+    <div class="header-container">
+        <!-- Background image layer with higher opacity -->
+        <div class="header-bg-image"></div>
+        <!-- Gradient overlay with reduced opacity -->
+        <div class="header-gradient"></div>
+        <!-- Decorative elements -->
+        <div class="header-decoration"></div>
+        
+        <div class="header-content">
+            <div class="header-badge">
+                <i class="fas fa-star"></i>
+                <span>ICML 2026</span>
+            </div>
+            <h1>iWorld-Bench</h1>
+            
+            <div class="header-stats">
+                <div class="stat-item"><strong>330K</strong> video clips</div>
+                <div class="stat-item"><strong>4.9K</strong> test tasks for evaluation</div>
+                <div class="stat-item"><strong>9</strong> comprehensive metrics</div>
+            </div>
+            
+            <div class="button-container">
+                <a href="#" class="button button-primary">
+                    <i class="fas fa-file-alt"></i> arXiv (Coming soon)
+                </a>
+                <a href="#" class="button button-secondary">
+                    <i class="fas fa-file-pdf"></i> PDF (Coming soon)
+                </a>
+                <a href="#" class="button button-secondary">
+                    <i class="fab fa-github"></i> Code (Coming soon)
+                </a>
+                <a href="#" class="button button-secondary">
+                    <i class="fas fa-database"></i> Dataset (Coming soon)
+                </a>
+                <a href="#" class="button button-secondary">
+                    <i class="fas fa-trophy"></i> Leaderboard (Coming soon)
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Authors & Date - New Format -->
+    <div class="byline-section">
+        <div class="byline-container">
+            <div class="byline-column">
+                <h3>Authors</h3>
+                <p><a href="#" class="author-link">Anonymous Author<sup>1</sup></a></p>
+            </div>
+        </div>
+        <div class="byline-container">
+            <div class="byline-column">
+                <h3>Affiliations</h3>
+                <p><a href="#" class="affiliation-link">Anonymous Institution<sup>1</sup></a></p>
+            </div>
+        </div>
+        <div class="byline-container">
+            <div class="byline-column">
+                <h3>Date</h3>
+                <p>2026</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Navigation Sidebar -->
+    <d-contents>
+        <nav>
+            <h4>Contents</h4>
+            <div><a href="#overview">Overview</a></div>
+            <div><a href="#comparison">Comparison</a></div>
+            <div><a href="#framework">Framework</a></div>
+            <div><a href="#dataset">Dataset</a></div>
+            <div><a href="#results">Results</a></div>
+        </nav>
+    </d-contents>
+    
+    <!-- Main Article -->
+    <d-article>
+        <!-- Overview Section -->
+        <section id="overview">
+            <h2>Overview</h2>
+            <p>
+                Achieving Artificial General Intelligence (AGI) requires agents that learn and interact adaptively, with interactive world models providing scalable environments for perception, reasoning, and action. Yet current research still lacks large-scale datasets and unified benchmarks to evaluate their physical interaction capabilities. To address this, we propose <strong>iWorld-Bench</strong>, a comprehensive benchmark for training and testing world models on interaction-related abilities such as distance perception and memory.
+            </p>
+            
+            <!-- Main Figure -->
+            <figure>
+                <img src="static/images/overview.png" alt="iWorld-Bench Overview" onerror="this.src='https://via.placeholder.com/1400x700/f5f5f5/333?text=iWorld-Bench+Overview'">
+            </figure>
+            
+            <p>
+                We construct a diverse dataset with 330k video clips and select 2.1k high-quality samples covering varied perspectives, weather, and scenes. As existing world models differ in interaction modalities, we introduce an <strong>Action Generation Framework</strong> to unify evaluation and design six task types, generating 4.9k test samples. These tasks jointly assess model performance across <strong>visual generation, trajectory following, and memory</strong>. Evaluating 14 representative world models, we identify key limitations and provide insights for future research.
+            </p>
+        </section>
+        
+        <!-- Comparison Section -->
+        <section id="comparison">
+            <h2>Comparison</h2>
+            
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Benchmark</th>
+                            <th>Field</th>
+                            <th>Multiple Inputs</th>
+                            <th>Interactive Task</th>
+                            <th>Camera Control</th>
+                            <th>Memory Ability</th>
+                            <th>Multi-Scene</th>
+                            <th>Multi-Perspective</th>
+                            <th>All-Weather</th>
+                            <th># Examples</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>EWMBench</td>
+                            <td>Manipulation Policies</td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="cross">✗</span></td>
+                            <td>2,100</td>
+                        </tr>
+                        <tr>
+                            <td>Movebench</td>
+                            <td>Motion-Controllable Video</td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="cross">✗</span></td>
+                            <td>1,018</td>
+                        </tr>
+                        <tr>
+                            <td>WorldEval</td>
+                            <td>Manipulation Policies</td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="cross">✗</span></td>
+                            <td>1,400</td>
+                        </tr>
+                        <tr>
+                            <td>VMbench</td>
+                            <td>Motion-Controllable Video</td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="cross">✗</span></td>
+                            <td>1,050</td>
+                        </tr>
+                        <tr>
+                            <td>WorldModelBench</td>
+                            <td>General World Model</td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="cross">✗</span></td>
+                            <td>67,000</td>
+                        </tr>
+                        <tr>
+                            <td>WorldBench</td>
+                            <td>Motion-Controllable Video</td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="cross">✗</span></td>
+                            <td>425</td>
+                        </tr>
+                        <tr>
+                            <td>WorldScore</td>
+                            <td>General World Model</td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="cross">✗</span></td>
+                            <td>3,000</td>
+                        </tr>
+                        <tr class="category-row">
+                            <td><strong>iWorld-Bench (Ours)</strong></td>
+                            <td><strong>Interactive World Model</strong></td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="check">✓</span></td>
+                            <td><strong>4,900</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <p>
+                Our benchmark focuses on interactive world modeling with comprehensive capabilities. Unlike existing benchmarks that are mostly designed for general-purpose world models or embodied world models, iWorld-Bench specifically evaluates interactive world models' responsiveness to external action sequences. It supports multiple input modalities, action control, camera control, memory ability evaluation, multi-scene coverage, multi-perspective observations, and all-weather adaptability.
+            </p>
+        </section>
+        
+        <!-- Framework Section -->
+        <section id="framework">
+            <h2>Framework</h2>
+            <p>
+                We introduce a unified and comprehensive framework that supports inputs from any modality of world models, enabling the design of action tasks and guiding the generation of world models.
+            </p>
+            
+            <h3>Action Space Definition</h3>
+            <p>
+                The generation process of a world model can be decoupled into the following representation: <strong>V<sub>t+1</sub> = W(I<sub>t</sub>, C<sub>t</sub>)</strong>, where V<sub>t+1</sub> represents the output of the world model, W denotes the specific world model, I<sub>t</sub> represents the current scene frame, and <strong>C<sub>t</sub> = [D, T, R, V]</strong> is a quadruple that controls the current frame I<sub>t</sub>.
+            </p>
+            <ul>
+                <li><strong>D</strong> represents the current action difficulty (1-6)</li>
+                <li><strong>T</strong> represents the translational ID (0-26)</li>
+                <li><strong>R</strong> represents the rotational ID (0-26)</li>
+                <li><strong>V</strong> represents the validity (0 or 1)</li>
+            </ul>
+            
+            <!-- Action Mapping Tables - Two column layout -->
+            <div class="action-tables">
+                <!-- Translation Motion Table -->
+                <div class="action-table-container">
+                    <h4>Translation Motion</h4>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Difficulty</th>
+                                    <th>ID</th>
+                                    <th>Direction</th>
+                                    <th>Keys</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>1</td><td>0</td><td>Stationary</td><td>-</td></tr>
+                                <tr><td>1</td><td>1</td><td>Forward</td><td>W</td></tr>
+                                <tr><td>1</td><td>2</td><td>Backward</td><td>S</td></tr>
+                                <tr><td>1</td><td>3</td><td>Left</td><td>A</td></tr>
+                                <tr><td>1</td><td>4</td><td>Right</td><td>D</td></tr>
+                                <tr><td>2</td><td>5</td><td>Forward+Left</td><td>W+A</td></tr>
+                                <tr><td>2</td><td>6</td><td>Forward+Right</td><td>W+D</td></tr>
+                                <tr><td>2</td><td>7</td><td>Backward+Left</td><td>S+A</td></tr>
+                                <tr><td>2</td><td>8</td><td>Backward+Right</td><td>S+D</td></tr>
+                                <tr class="gray-row"><td>1</td><td>9</td><td>Upward</td><td>-</td></tr>
+                                <tr class="gray-row"><td>1</td><td>10</td><td>Downward</td><td>-</td></tr>
+                                <tr class="gray-row"><td>2</td><td>11</td><td>Forward+Upward</td><td>-</td></tr>
+                                <tr class="gray-row"><td>2</td><td>12</td><td>Forward+Downward</td><td>-</td></tr>
+                                <tr class="gray-row"><td>2</td><td>13</td><td>Backward+Upward</td><td>-</td></tr>
+                                <tr class="gray-row"><td>2</td><td>14</td><td>Backward+Downward</td><td>-</td></tr>
+                                <tr class="gray-row"><td>2</td><td>15</td><td>Left+Upward</td><td>-</td></tr>
+                                <tr class="gray-row"><td>2</td><td>16</td><td>Left+Downward</td><td>-</td></tr>
+                                <tr class="gray-row"><td>2</td><td>17</td><td>Right+Upward</td><td>-</td></tr>
+                                <tr class="gray-row"><td>2</td><td>18</td><td>Right+Downward</td><td>-</td></tr>
+                                <tr class="gray-row"><td>3</td><td>19</td><td>Forward+Left+Upward</td><td>-</td></tr>
+                                <tr class="gray-row"><td>3</td><td>20</td><td>Forward+Right+Upward</td><td>-</td></tr>
+                                <tr class="gray-row"><td>3</td><td>21</td><td>Forward+Left+Downward</td><td>-</td></tr>
+                                <tr class="gray-row"><td>3</td><td>22</td><td>Forward+Right+Downward</td><td>-</td></tr>
+                                <tr class="gray-row"><td>3</td><td>23</td><td>Backward+Left+Upward</td><td>-</td></tr>
+                                <tr class="gray-row"><td>3</td><td>24</td><td>Backward+Right+Upward</td><td>-</td></tr>
+                                <tr class="gray-row"><td>3</td><td>25</td><td>Backward+Left+Downward</td><td>-</td></tr>
+                                <tr class="gray-row"><td>3</td><td>26</td><td>Backward+Right+Downward</td><td>-</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Rotation Motion Table -->
+                <div class="action-table-container">
+                    <h4>Rotation Motion</h4>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Difficulty</th>
+                                    <th>ID</th>
+                                    <th>Direction</th>
+                                    <th>Keys</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>1</td><td>0</td><td>Stationary</td><td>-</td></tr>
+                                <tr><td>1</td><td>1</td><td>Camera Up</td><td>↑</td></tr>
+                                <tr><td>1</td><td>2</td><td>Camera Down</td><td>↓</td></tr>
+                                <tr><td>1</td><td>3</td><td>Camera Right</td><td>→</td></tr>
+                                <tr><td>1</td><td>4</td><td>Camera Left</td><td>←</td></tr>
+                                <tr><td>2</td><td>5</td><td>Camera Up+Right</td><td>↑+→</td></tr>
+                                <tr><td>2</td><td>6</td><td>Camera Up+Left</td><td>↑+←</td></tr>
+                                <tr><td>2</td><td>7</td><td>Camera Down+Right</td><td>↓+→</td></tr>
+                                <tr><td>2</td><td>8</td><td>Camera Down+Left</td><td>↓+←</td></tr>
+                                <tr class="gray-row"><td>1</td><td>9</td><td>Clockwise</td><td>-</td></tr>
+                                <tr class="gray-row"><td>1</td><td>10</td><td>Counterclockwise</td><td>-</td></tr>
+                                <tr class="gray-row"><td>2</td><td>11</td><td>Camera Up+Clockwise</td><td>-</td></tr>
+                                <tr class="gray-row"><td>2</td><td>12</td><td>Camera Up+Counterclockwise</td><td>-</td></tr>
+                                <tr class="gray-row"><td>2</td><td>13</td><td>Camera Down+Clockwise</td><td>-</td></tr>
+                                <tr class="gray-row"><td>2</td><td>14</td><td>Camera Down+Counterclockwise</td><td>-</td></tr>
+                                <tr class="gray-row"><td>2</td><td>15</td><td>Camera Left+Clockwise</td><td>-</td></tr>
+                                <tr class="gray-row"><td>2</td><td>16</td><td>Camera Left+Counterclockwise</td><td>-</td></tr>
+                                <tr class="gray-row"><td>2</td><td>17</td><td>Camera Right+Clockwise</td><td>-</td></tr>
+                                <tr class="gray-row"><td>2</td><td>18</td><td>Camera Right+Counterclockwise</td><td>-</td></tr>
+                                <tr class="gray-row"><td>3</td><td>19</td><td>Camera Up+Right+Clockwise</td><td>-</td></tr>
+                                <tr class="gray-row"><td>3</td><td>20</td><td>Camera Up+Right+Counterclockwise</td><td>-</td></tr>
+                                <tr class="gray-row"><td>3</td><td>21</td><td>Camera Up+Left+Clockwise</td><td>-</td></tr>
+                                <tr class="gray-row"><td>3</td><td>22</td><td>Camera Up+Left+Counterclockwise</td><td>-</td></tr>
+                                <tr class="gray-row"><td>3</td><td>23</td><td>Camera Down+Right+Clockwise</td><td>-</td></tr>
+                                <tr class="gray-row"><td>3</td><td>24</td><td>Camera Down+Left+Counterclockwise</td><td>-</td></tr>
+                                <tr class="gray-row"><td>3</td><td>25</td><td>Camera Down+Right+Clockwise</td><td>-</td></tr>
+                                <tr class="gray-row"><td>3</td><td>26</td><td>Camera Down+Left+Counterclockwise</td><td>-</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <h3>Task Design</h3>
+            <p>
+                Based on the Action Generation Framework, we designed six types of tasks to comprehensively evaluate the interaction capabilities of world models:
+            </p>
+            
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Task Type</th>
+                            <th>Description</th>
+                            <th>Difficulty</th>
+                            <th># Tasks</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Action Control Difficulty 1</td>
+                            <td>Basic tasks including stationary and 9 basic actions</td>
+                            <td>D = 1</td>
+                            <td>1,000</td>
+                        </tr>
+                        <tr>
+                            <td>Action Control Difficulty 2</td>
+                            <td>Two-degree-of-freedom tasks covering 24 actions</td>
+                            <td>D = 2</td>
+                            <td>1,000</td>
+                        </tr>
+                        <tr>
+                            <td>Action Control Difficulty 3</td>
+                            <td>Three-degree-of-freedom tasks covering 32 actions</td>
+                            <td>D = 3</td>
+                            <td>1,000</td>
+                        </tr>
+                        <tr>
+                            <td>Action Control Difficulty 4</td>
+                            <td>Four-degree-of-freedom complex tasks covering 16 actions</td>
+                            <td>D = 4</td>
+                            <td>1,000</td>
+                        </tr>
+                        <tr>
+                            <td>Memory Ability</td>
+                            <td>Cyclic paths requiring model to visit same location</td>
+                            <td>-</td>
+                            <td>200</td>
+                        </tr>
+                        <tr>
+                            <td>Camera Following</td>
+                            <td>Trajectory following using camera parameter files</td>
+                            <td>-</td>
+                            <td>700</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <h3>Evaluation Metrics (Coming Soon)</h3>
+            
+            <!-- Generation Quality -->
+            <div class="metric-subtitle">Generation Quality</div>
+            <div class="metric-buttons">
+                <button class="metric-button active" onclick="showMetric(event, 'image-quality')">Image Quality</button>
+                <button class="metric-button" onclick="showMetric(event, 'brightness')">Brightness Consistency</button>
+                <button class="metric-button" onclick="showMetric(event, 'color')">Color Temperature</button>
+                <button class="metric-button" onclick="showMetric(event, 'sharpness')">Sharpness Retention</button>
+            </div>
+            
+            <div id="image-quality" class="metric-content">
+                <p>
+                    We evaluate low-level visual distortions by calculating the normalized average MUSIQ score across all frames to reflect fundamental rendering fidelity.
+                </p>
+                <div class="video-grid">
+                    <div class="video-item">
+                        <video controls muted poster="static/videos/poster1.jpg">
+                            <source src="static/videos/76.67_Consistent Image Quality.mp4" type="video/mp4">
+                        </video>
+                        <div class="video-label">Score: 76.67</div>
+                    </div>
+                    <div class="video-item">
+                        <video controls muted poster="static/videos/poster2.jpg">
+                            <source src="static/videos/28.17_Inconsistent Image Quality.mp4" type="video/mp4">
+                        </video>
+                        <div class="video-label">Score: 28.17</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="brightness" class="metric-content" style="display:none;">
+                <p>
+                    By calculating the mirror similarity of instantaneous displacement vectors, we assess the spatial topological consistency of camera movements in reciprocal tasks.
+                </p>
+                <div class="video-grid">
+                    <div class="video-item">
+                        <video controls muted poster="static/videos/poster3.jpg">
+                            <source src="static/videos/99.65_Consistent Brightness.mp4" type="video/mp4">
+                        </video>
+                        <div class="video-label">Score: 99.65</div>
+                    </div>
+                    <div class="video-item">
+                        <video controls muted poster="static/videos/poster4.jpg">
+                            <source src="static/videos/0.32_Inconsistent Brightness.mp4" type="video/mp4">
+                        </video>
+                        <div class="video-label">Score: 0.32</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="color" class="metric-content" style="display:none;">
+                <p>
+                    By penalizing hue drifting in the HSV space through weighted temporal similarity, this metric ensures global color temperature remains logically unified.
+                </p>
+                <div class="video-grid">
+                    <div class="video-item">
+                        <video controls muted poster="static/videos/poster5.jpg">
+                            <source src="static/videos/98.50_Consistent Color Temperature.mp4" type="video/mp4">
+                        </video>
+                        <div class="video-label">Score: 98.50</div>
+                    </div>
+                    <div class="video-item">
+                        <video controls muted poster="static/videos/poster6.jpg">
+                            <source src="static/videos/10.10_Inconsistent Color Temperature.mp4" type="video/mp4">
+                        </video>
+                        <div class="video-label">Score: 10.10</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="sharpness" class="metric-content" style="display:none;">
+                <p>
+                    By coupling a vectorized Tenengrad method with a BRISQUE-triggered circuit breaker logic, we distinguish genuine texture stability from high-frequency artifacts.
+                </p>
+                <div class="video-grid">
+                    <div class="video-item">
+                        <video controls muted poster="static/videos/poster7.jpg">
+                            <source src="static/videos/99.19_onsistent Sharpness Retention.mp4" type="video/mp4">
+                        </video>
+                        <div class="video-label">Score: 99.19</div>
+                    </div>
+                    <div class="video-item">
+                        <video controls muted poster="static/videos/poster8.jpg">
+                            <source src="static/videos/2.40_Inconsistent Sharpness Retention.mp4" type="video/mp4">
+                        </video>
+                        <div class="video-label">Score: 2.40</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Trajectory Following -->
+            <div class="metric-subtitle">Trajectory Following</div>
+            <div class="metric-buttons">
+                <button class="metric-button active" onclick="showMetric2(event, 'motion')">Motion Smoothness</button>
+                <button class="metric-button" onclick="showMetric2(event, 'accuracy')">Trajectory Accuracy</button>
+                <button class="metric-button" onclick="showMetric2(event, 'tolerance')">Trajectory Tolerance</button>
+            </div>
+            
+            <div id="motion" class="metric-content2">
+                <p>
+                    We utilize motion priors from frame interpolation models to evaluate the reconstruction quality of sampled frames via LPIPS, SSIM, and MSE, effectively identifying unnatural jitters or physical inconsistencies.
+                </p>
+                <div class="video-grid">
+                    <div class="video-item">
+                        <video controls muted poster="static/videos/poster9.jpg">
+                            <source src="static/videos/9.mp4" type="video/mp4">
+                        </video>
+                        <div class="video-label">Example 1</div>
+                    </div>
+                    <div class="video-item">
+                        <video controls muted poster="static/videos/poster10.jpg">
+                            <source src="static/videos/10.mp4" type="video/mp4">
+                        </video>
+                        <div class="video-label">Example 2</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="accuracy" class="metric-content2" style="display:none;">
+                <p>
+                    By evaluating directional mapping accuracy in the motion tangent space via ViPE-extracted trajectories, we quantify how precisely the model adheres to camera commands.
+                </p>
+                <div class="video-grid">
+                    <div class="video-item">
+                        <video controls muted poster="static/videos/poster11.jpg">
+                            <source src="static/videos/11.mp4" type="video/mp4">
+                        </video>
+                        <div class="video-label">Example 1</div>
+                    </div>
+                    <div class="video-item">
+                        <video controls muted poster="static/videos/poster12.jpg">
+                            <source src="static/videos/12.mp4" type="video/mp4">
+                        </video>
+                        <div class="video-label">Example 2</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="tolerance" class="metric-content2" style="display:none;">
+                <p>
+                    To eliminate estimator-induced variance, we calibrate the model's trajectory fidelity by cross-referencing generated sequences with ground-truth videos under the same ViPE framework.
+                </p>
+                <div class="video-grid">
+                    <div class="video-item">
+                        <video controls muted poster="static/videos/poster13.jpg">
+                            <source src="static/videos/13.mp4" type="video/mp4">
+                        </video>
+                        <div class="video-label">Example 1</div>
+                    </div>
+                    <div class="video-item">
+                        <video controls muted poster="static/videos/poster14.jpg">
+                            <source src="static/videos/14.mp4" type="video/mp4">
+                        </video>
+                        <div class="video-label">Example 2</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Memory Ability -->
+            <div class="metric-subtitle">Memory Ability</div>
+            <div class="metric-buttons">
+                <button class="metric-button active" onclick="showMetric3(event, 'symmetry')">Memory Symmetry</button>
+                <button class="metric-button" onclick="showMetric3(event, 'alignment')">Trajectory Alignment</button>
+            </div>
+            
+            <div id="symmetry" class="metric-content3">
+                <p>
+                    To quantify logical loop-closure in reciprocal tasks, we evaluate the pixel-wise consistency of symmetric frame pairs relative to the temporal midpoint. This metric effectively captures memory decay or structural logic failure during extended temporal reasoning.
+                </p>
+                <div class="video-grid">
+                    <div class="video-item">
+                        <video controls muted poster="static/videos/poster15.jpg">
+                            <source src="static/videos/15.mp4" type="video/mp4">
+                        </video>
+                        <div class="video-label">Example 1</div>
+                    </div>
+                    <div class="video-item">
+                        <video controls muted poster="static/videos/poster16.jpg">
+                            <source src="static/videos/16.mp4" type="video/mp4">
+                        </video>
+                        <div class="video-label">Example 2</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="alignment" class="metric-content3" style="display:none;">
+                <p>
+                    By calculating the mirror similarity of instantaneous displacement vectors, we assess the spatial topological consistency of camera movements in reciprocal tasks. This dimension evaluates the model's 3D space persistence, ensuring geometric logic remains intact during return-trip scenarios.
+                </p>
+                <div class="video-grid">
+                    <div class="video-item">
+                        <video controls muted poster="static/videos/poster17.jpg">
+                            <source src="static/videos/75.34_Consistent Trajectory Alignment.mp4" type="video/mp4">
+                        </video>
+                        <div class="video-label">Score:75.34</div>
+                    </div>
+                    <div class="video-item">
+                        <video controls muted poster="static/videos/poster18.jpg">
+                            <source src="static/videos/20.75_Inconsistent Trajectory Alignment.mp4" type="video/mp4">
+                        </video>
+                        <div class="video-label">Score:20.75</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Dataset Section -->
+        <section id="dataset">
+            <h2>Dataset</h2>
+            <p>
+                We established a comprehensive data processing protocol to clean and standardize 12 high-quality datasets, unifying the original coordinate systems and intrinsic/extrinsic parameter formats. Additionally, we designed an automated collection and filtering pipeline to gather 100k 1080P video clips from 18 high-quality environments across 4 simulators. Combined with vision-language models, all video clips were uniformly annotated, resulting in a high-quality dataset containing 330k video clips.
+            </p>
+            
+            <!-- Dataset Image -->
+            <figure>
+                <img src="static/images/datapic.png" alt="Dataset Overview" onerror="this.src='https://via.placeholder.com/1400x700/f5f5f5/333?text=Dataset+Overview'">
+            </figure>
+            
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Dataset</th>
+                            <th>Year</th>
+                            <th>Domain</th>
+                            <th>Pose Representation</th>
+                            <th>Viewpoint</th>
+                            <th>Clip Count</th>
+                            <th>Selected [N<sub>1</sub>, N<sub>2</sub>]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>KITTI</td><td>2012</td><td>Autonomous driving</td><td>External parameter matrix</td><td>UGV</td><td>281</td><td>[20, 5]</td></tr>
+                        <tr><td>NuScenes</td><td>2019</td><td>Autonomous driving</td><td>Seven-element</td><td>UGV</td><td>1,000+</td><td>[15, 5]</td></tr>
+                        <tr><td>Waymo</td><td>2019</td><td>Autonomous driving</td><td>External parameter matrix</td><td>UGV</td><td>453</td><td>[15, 5]</td></tr>
+                        <tr><td>TUM-RGB-D</td><td>2011</td><td>3D reconstruction</td><td>Seven-element</td><td>Human, UGV</td><td>405</td><td>[15, 5]</td></tr>
+                        <tr><td>7-Scenes</td><td>2013</td><td>3D reconstruction</td><td>External parameter matrix</td><td>Human</td><td>516</td><td>[30, 10]</td></tr>
+                        <tr><td>RealEstate-10K</td><td>2018</td><td>3D reconstruction</td><td>External parameter matrix</td><td>Human, UGV</td><td>20,000+</td><td>[200, 147]</td></tr>
+                        <tr><td>Princeton365</td><td>2019</td><td>3D reconstruction</td><td>External parameter matrix</td><td>Human</td><td>365</td><td>[29, 2]</td></tr>
+                        <tr><td>DL3DV-10K</td><td>2023</td><td>3D reconstruction</td><td>External parameter matrix</td><td>Human</td><td>10,000+</td><td>[60, 10]</td></tr>
+                        <tr><td>NCLT Dataset</td><td>2016</td><td>Robotics inspection</td><td>6-DoF</td><td>UGV</td><td>10,000+</td><td>[60, 21]</td></tr>
+                        <tr><td>TartanGround</td><td>2024</td><td>Robotics inspection</td><td>Seven-element</td><td>UGV</td><td>3,000+</td><td>[56, 10]</td></tr>
+                        <tr><td>TartanAir-V2</td><td>2024</td><td>Drone inspection</td><td>Seven-element</td><td>UAV</td><td>2,000+</td><td>[100, 40]</td></tr>
+                        <tr><td>SpatialVid</td><td>2025</td><td>World model</td><td>6-DoF</td><td>Human, UGV, UAV</td><td>180,000</td><td>[100, 40]</td></tr>
+                        <tr class="category-row"><td><strong>Total</strong></td><td>-</td><td>-</td><td>-</td><td>-</td><td><strong>230,000+</strong></td><td><strong>[700, 200]</strong></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <!-- Results Section -->
+        <section id="results">
+            <h2>Results</h2>
+            <p>
+                We selected 14 representative interactive world models for evaluation, including five text-conditioned camera control models, two one-hot-conditioned camera control models, and seven models with camera control via explicit intrinsics and extrinsics.
+            </p>
+            
+            <h3>Action Control and Memory Ability</h3>
+            
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th rowspan="2">Method</th>
+                            <th rowspan="2">Rank</th>
+                            <th rowspan="2">Avg. ↑</th>
+                            <th colspan="4">Generation Quality</th>
+                            <th colspan="2">Trajectory Following</th>
+                            <th colspan="2">Memory Ability</th>
+                        </tr>
+                        <tr>
+                            <th>Image Quality ↑</th>
+                            <th>Brightness Consistency ↑</th>
+                            <th>Color Temperature ↑</th>
+                            <th>Sharpness Retention ↑</th>
+                            <th>Motion Smoothness ↑</th>
+                            <th>Trajectory Accuracy ↑</th>
+                            <th>Memory Symmetry ↑</th>
+                            <th>Trajectory Alignment ↑</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="category-row">
+                            <td colspan="11">Camera Control via Text</td>
+                        </tr>
+                        <tr><td>NVIDIA Cosmos</td><td>7</td><td>0.6275</td><td>0.6778</td><td>0.6952</td><td>0.7170</td><td>0.4363</td><td>0.9907</td><td>0.4955</td><td>0.3738</td><td>0.6419</td></tr>
+                        <tr><td>HunyuanVideo-1.5</td><td>3</td><td>0.7188</td><td class="best-score">0.7128</td><td>0.7027</td><td>0.7477</td><td>0.5545</td><td>0.9908</td><td>0.6844</td><td>0.6336</td><td>0.6449</td></tr>
+                        <tr><td>WAN 2.2</td><td>12</td><td>0.5731</td><td>0.5545</td><td>0.3886</td><td>0.3411</td><td>0.3428</td><td>0.9557</td><td>0.6514</td><td>0.4480</td><td>0.5703</td></tr>
+                        <tr><td>CogVideoX-I2V</td><td>5</td><td>0.6963</td><td>0.6521</td><td class="best-score">0.8988</td><td class="best-score">0.8129</td><td class="best-score">0.7951</td><td class="best-score">0.9938</td><td>0.5950</td><td>0.6010</td><td>0.4084</td></tr>
+                        <tr><td>YUME 1.5</td><td>8</td><td>0.6209</td><td>0.6232</td><td>0.3810</td><td>0.4165</td><td>0.4023</td><td>0.9765</td><td>0.7113</td><td>0.5276</td><td>0.5988</td></tr>
+                        <tr class="category-row">
+                            <td colspan="11">Camera Control via One-hot Encoding</td>
+                        </tr>
+                        <tr><td>Matrix-game 2.0</td><td>13</td><td>0.5663</td><td>0.4851</td><td>0.2963</td><td>0.2937</td><td>0.4149</td><td>0.9848</td><td>0.7008</td><td>0.3311</td><td>0.6362</td></tr>
+                        <tr><td>HY-World 1.5</td><td>1</td><td class="best-score">0.7873</td><td>0.6675</td><td>0.8051</td><td>0.7819</td><td>0.6634</td><td>0.9921</td><td class="best-score">0.7472</td><td>0.8481</td><td>0.6776</td></tr>
+                        <tr class="category-row">
+                            <td colspan="11">Camera Control via Intrinsics and Extrinsics</td>
+                        </tr>
+                        <tr><td>CameraCtrl</td><td>11</td><td>0.5762</td><td>0.4473</td><td>0.3717</td><td>0.2511</td><td>0.4545</td><td>0.9796</td><td>0.6778</td><td>0.4279</td><td>0.6097</td></tr>
+                        <tr><td>MotionCtrl</td><td>14</td><td>0.5486</td><td>0.4562</td><td>0.3980</td><td>0.2012</td><td>0.4294</td><td>0.9735</td><td>0.6730</td><td>0.3098</td><td>0.5932</td></tr>
+                        <tr><td>CamI2V</td><td>10</td><td>0.5765</td><td>0.5284</td><td>0.4343</td><td>0.3568</td><td>0.4297</td><td>0.9861</td><td>0.6314</td><td>0.3631</td><td>0.6038</td></tr>
+                        <tr><td>RealCam-I2V</td><td>6</td><td>0.6865</td><td>0.6227</td><td>0.4130</td><td>0.5547</td><td>0.6269</td><td>0.9860</td><td>0.5630</td><td>0.7948</td><td>0.6668</td></tr>
+                        <tr><td>videox-fun-Wan</td><td>2</td><td>0.7474</td><td>0.6410</td><td>0.5972</td><td>0.5473</td><td>0.5998</td><td>0.9858</td><td>0.7172</td><td>0.9009</td><td class="best-score">0.6876</td></tr>
+                        <tr><td>AC3D</td><td>4</td><td>0.7149</td><td>0.4573</td><td>0.7307</td><td>0.6524</td><td>0.5332</td><td>0.9919</td><td>0.5785</td><td class="best-score">0.9068</td><td>0.6250</td></tr>
+                        <tr><td>ASTRA</td><td>9</td><td>0.5980</td><td>0.5335</td><td>0.5091</td><td>0.4338</td><td>0.5488</td><td>0.9799</td><td>0.6115</td><td>0.4323</td><td>0.5518</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <h3>Camera Following Results</h3>
+            
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th rowspan="2">Method</th>
+                            <th colspan="4">Generation Quality</th>
+                            <th colspan="2">Trajectory Following</th>
+                        </tr>
+                        <tr>
+                            <th>Image Quality ↑</th>
+                            <th>Brightness Consistency ↑</th>
+                            <th>Color Temperature ↑</th>
+                            <th>Sharpness Retention ↑</th>
+                            <th>Motion Smoothness ↑</th>
+                            <th>Trajectory Tolerance ↑</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="category-row">
+                            <td colspan="7">Camera Control via Intrinsics and Extrinsics</td>
+                        </tr>
+                        <tr><td>CameraCtrl</td><td>0.3980</td><td>0.3497</td><td>0.2008</td><td>0.4211</td><td>0.9659</td><td>0.7099</td></tr>
+                        <tr><td>MotionCtrl</td><td>0.4270</td><td>0.3924</td><td>0.1810</td><td>0.4256</td><td>0.9622</td><td>0.7120</td></tr>
+                        <tr><td>CamI2V</td><td>0.4046</td><td>0.3674</td><td>0.2605</td><td>0.3830</td><td>0.9766</td><td>0.7143</td></tr>
+                        <tr><td>RealCam-I2V</td><td class="best-score">0.5889</td><td>0.4777</td><td>0.5521</td><td class="best-score">0.6838</td><td>0.9783</td><td>0.7480</td></tr>
+                        <tr><td>videox-fun-Wan</td><td>0.5701</td><td>0.5584</td><td>0.3659</td><td>0.4925</td><td>0.9604</td><td>0.7381</td></tr>
+                        <tr><td>AC3D</td><td>0.5208</td><td class="best-score">0.8927</td><td class="best-score">0.7404</td><td>0.6472</td><td class="best-score">0.9919</td><td class="best-score">0.9091</td></tr>
+                        <tr><td>ASTRA</td><td>0.4743</td><td>0.3972</td><td>0.2819</td><td>0.4171</td><td>0.9615</td><td>0.4286</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Radar Chart Image -->
+            <figure>
+                <img src="static/images/radar.png" alt="Performance Radar Chart" onerror="this.src='https://via.placeholder.com/1400x700/f5f5f5/333?text=Performance+Radar+Chart'">
+            </figure>
+        </section>
+        
+        <!-- BibTeX Section -->
+        <section id="bibtex">
+            <h2>BibTeX</h2>
+            <p>If you find this work useful, please consider citing:</p>
+            
+            <div class="bibtex-box">
+                <button class="copy-btn" onclick="copyBibtex()">
+                    <i class="fas fa-copy"></i> Copy
+                </button>
+                <pre id="bibtex-content">@inproceedings{iworldbench2026,
+    title={iWorld-Bench: A Benchmark for Interactive World Models with a Unified Action Generation Framework},
+    author={Anonymous Authors},
+    year={2026},
+    organization={Anonymous Organization}
+    }</pre>
+            </div>
+        </section>
+    </d-article>
+    
+    <!-- Footer -->
+    <footer>
+        <p>
+            <i class="fas fa-envelope"></i> Contact: <a href="mailto:Anonymous@xxx.edu">Anonymous@xxx.edu</a>
+        </p>
+        <p style="margin-top: 0.5rem;">
+            &copy; 2026 iWorld-Bench. All rights reserved.
+        </p>
+    </footer>
+    
+    <script>
+        // Copy BibTeX function
+        function copyBibtex() {
+            const bibtex = document.getElementById('bibtex-content').textContent;
+            navigator.clipboard.writeText(bibtex).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                }, 2000);
+            });
+        }
+        
+        // Active navigation highlighting
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('d-contents a');
+        
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= sectionTop - 200) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+        
+        function playVideosInContainer(container) {
+            if (!container) return;
+            const videos = container.querySelectorAll('video');
+            videos.forEach(video => {
+                if (video.paused) {
+                    video.play().catch(e => console.log('自动播放失败:', e));
+                }
+            });
+        }
+        
+        function pauseVideosInContainer(container) {
+            if (!container) return;
+            container.querySelectorAll('video').forEach(video => video.pause());
+        }
+        
+        function pauseAllVideos() {
+            document.querySelectorAll('video').forEach(video => video.pause());
+        }
+        
+        function showMetric(event, metricId) {
+            pauseAllVideos();
+            document.querySelectorAll('.metric-content').forEach(el => el.style.display = 'none');
+            const target = document.getElementById(metricId);
+            target.style.display = 'block';
+            
+            const buttonGroup = event.target.closest('.metric-buttons');
+            if (buttonGroup) {
+                buttonGroup.querySelectorAll('.metric-button').forEach(btn => btn.classList.remove('active'));
+                event.target.classList.add('active');
+            }
+            
+            playVideosInContainer(target);
+        }
+        
+        function showMetric2(event, metricId) {
+            pauseAllVideos();
+            document.querySelectorAll('.metric-content2').forEach(el => el.style.display = 'none');
+            const target = document.getElementById(metricId);
+            target.style.display = 'block';
+            
+            const buttonGroup = event.target.closest('.metric-buttons');
+            if (buttonGroup) {
+                buttonGroup.querySelectorAll('.metric-button').forEach(btn => btn.classList.remove('active'));
+                event.target.classList.add('active');
+            }
+            
+            playVideosInContainer(target);
+        }
+        
+        function showMetric3(event, metricId) {
+            pauseAllVideos();
+            document.querySelectorAll('.metric-content3').forEach(el => el.style.display = 'none');
+            const target = document.getElementById(metricId);
+            target.style.display = 'block';
+            
+            const buttonGroup = event.target.closest('.metric-buttons');
+            if (buttonGroup) {
+                buttonGroup.querySelectorAll('.metric-button').forEach(btn => btn.classList.remove('active'));
+                event.target.classList.add('active');
+            }
+            
+            playVideosInContainer(target);
+        }
+        
+        window.addEventListener('load', () => {
+            const initialContainers = ['image-quality', 'motion', 'symmetry'];
+            initialContainers.forEach(id => {
+                const container = document.getElementById(id);
+                if (container && container.style.display !== 'none') {
+                    playVideosInContainer(container);
+                }
+            });
+        });
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const container = entry.target;
+                
+                if (window.getComputedStyle(container).display !== 'none') {
+                    if (entry.isIntersecting) {
+                        playVideosInContainer(container);
+                    } else {
+                        pauseVideosInContainer(container); 
+                    }
+                }
+            });
+        }, { threshold: 0.3 });
+        
+        document.querySelectorAll('.metric-content, .metric-content2, .metric-content3').forEach(el => observer.observe(el));
+    </script>
+</body>
+</html>
