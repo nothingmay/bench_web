@@ -314,6 +314,12 @@
             text-align: center;
         }
         
+        .authors-meta-panel {
+            width: fit-content;
+            max-width: 100%;
+            margin-inline: auto;
+        }
+        
         .authors-rows {
             display: grid;
             grid-template-columns: repeat(3, max-content);
@@ -321,9 +327,16 @@
             row-gap: 1rem;
             width: fit-content;
             max-width: 100%;
-            margin-inline: auto;
             justify-items: start;
             color: var(--text-dark);
+        }
+        
+        .byline-equal-note {
+            margin-top: 1rem;
+            margin-bottom: 0;
+            font-size: 0.82rem;
+            color: var(--text-light);
+            text-align: left;
         }
         
         .byline-affiliations-column {
@@ -361,6 +374,14 @@
                 row-gap: 0.65rem;
             }
             
+            .authors-meta-panel {
+                width: 100%;
+            }
+            
+            .byline-equal-note {
+                text-align: center;
+            }
+            
             .byline-affiliations-column p {
                 white-space: normal;
             }
@@ -371,6 +392,10 @@
             font-weight: 500;
             text-decoration: none;
             transition: color 0.2s;
+        }
+        
+        a.author-link {
+            cursor: pointer;
         }
         
         .author-link:hover {
@@ -844,10 +869,6 @@
             font-size: 0.9rem;
             margin: 0;
         }
-        
-        footer a {
-            color: var(--primary);
-        }
     </style>
 </head>
 <body class="base-grid">
@@ -898,18 +919,21 @@
         <div class="byline-container">
             <div class="byline-column byline-authors-column">
                 <h3 class="byline-heading-short-rule">Authors</h3>
-                <div class="authors-rows">
-                    <span class="author-link">Jianjie Fang<sup>*</sup><sup>1</sup></span>
-                    <span class="author-link">Yingshan Lei<sup>*</sup><sup>1</sup></span>
-                    <span class="author-link">Qin Wan<sup>*</sup><sup>1</sup></span>
-                    <span class="author-link">Ziyou Wang<sup>2</sup></span>
-                    <span class="author-link">Yuchao Huang<sup>2</sup></span>
-                    <span class="author-link">Yongyan Xu<sup>3</sup></span>
-                    <span class="author-link">Baining Zhao<sup>1</sup></span>
-                    <span class="author-link">Weichen Zhang<sup>1</sup></span>
-                    <span class="author-link">Chen Gao<sup>1</sup></span>
-                    <span class="author-link">Xinlei Chen<sup>1</sup></span>
-                    <span class="author-link">Yong Li<sup>1</sup></span>
+                <div class="authors-meta-panel">
+                    <div class="authors-rows">
+                        <span class="author-link">Jianjie Fang<sup>※</sup><sup>1</sup></span>
+                        <span class="author-link">Yingshan Lei<sup>※</sup><sup>1</sup></span>
+                        <span class="author-link">Qin Wan<sup>※</sup><sup>1</sup></span>
+                        <span class="author-link">Ziyou Wang<sup>2</sup></span>
+                        <span class="author-link">Yuchao Huang<sup>2</sup></span>
+                        <span class="author-link">Yongyan Xu<sup>3</sup></span>
+                        <span class="author-link">Baining Zhao<sup>1</sup></span>
+                        <span class="author-link">Weichen Zhang<sup>1</sup></span>
+                        <a class="author-link" href="mailto:chgao96@gmail.com">Chen Gao<sup>1</sup></a>
+                        <a class="author-link" href="mailto:chen.xinlei@sz.tsinghua.edu.cn">Xinlei Chen<sup>1</sup></a>
+                        <a class="author-link" href="mailto:liyong07@tsinghua.edu.cn">Yong Li<sup>1</sup></a>
+                    </div>
+                    <p class="byline-equal-note">※ Equal contribution.</p>
                 </div>
             </div>
         </div>
@@ -1615,15 +1639,7 @@
     
     <!-- Footer -->
     <footer>
-        <p>
-            <i class="fas fa-envelope"></i> Contact:
-            <a href="mailto:chgao96@gmail.com">Chen Gao</a>,
-            <a href="mailto:chen.xinlei@sz.tsinghua.edu.cn">Xinlei Chen</a>,
-            <a href="mailto:liyong07@tsinghua.edu.cn">Yong Li</a>
-        </p>
-        <p style="margin-top: 0.5rem;">
-            &copy; 2026 iWorld-Bench. All rights reserved.
-        </p>
+        <p>&copy; 2026 iWorld-Bench. All rights reserved.</p>
     </footer>
     
     <script>
