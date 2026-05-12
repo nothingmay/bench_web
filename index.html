@@ -289,6 +289,83 @@
             font-size: 0.95rem;
         }
         
+        .byline-column h3.byline-heading-short-rule {
+            border-bottom: none;
+            position: relative;
+            padding-bottom: 0.6rem;
+            text-align: center;
+        }
+        
+        .byline-column h3.byline-heading-short-rule::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: 0;
+            transform: translateX(-50%);
+            width: 2.5rem;
+            height: 2px;
+            background: var(--border);
+        }
+        
+        .byline-authors-column {
+            flex: 1 1 100%;
+            max-width: 960px;
+            min-width: 280px;
+            text-align: center;
+        }
+        
+        .authors-rows {
+            display: grid;
+            grid-template-columns: repeat(3, max-content);
+            column-gap: clamp(2.25rem, 8vw, 5rem);
+            row-gap: 1rem;
+            width: fit-content;
+            max-width: 100%;
+            margin-inline: auto;
+            justify-items: start;
+            color: var(--text-dark);
+        }
+        
+        .byline-affiliations-column {
+            flex: 1 1 100%;
+            max-width: 960px;
+            min-width: min(100%, 28rem);
+        }
+        
+        .byline-affiliations-column p {
+            text-align: center;
+            margin-bottom: 0.5rem;
+            white-space: nowrap;
+        }
+        
+        .byline-affiliations-column p:last-child {
+            margin-bottom: 0;
+        }
+        
+        .byline-date-column {
+            flex: 1 1 100%;
+            max-width: 960px;
+            min-width: 200px;
+        }
+        
+        .byline-date-column p {
+            text-align: center;
+            margin-bottom: 0;
+        }
+        
+        @media (max-width: 640px) {
+            .authors-rows {
+                width: 100%;
+                grid-template-columns: 1fr;
+                justify-items: center;
+                row-gap: 0.65rem;
+            }
+            
+            .byline-affiliations-column p {
+                white-space: normal;
+            }
+        }
+        
         .author-link {
             color: var(--text-dark);
             font-weight: 500;
@@ -797,20 +874,20 @@
             </div>
             
             <div class="button-container">
-                <a href="#" class="button button-primary">
-                    <i class="fas fa-file-alt"></i> arXiv (Coming soon)
+                <a href="https://arxiv.org/abs/2605.03941" class="button button-primary" target="_blank" rel="noopener noreferrer">
+                    <i class="fas fa-file-alt"></i> arXiv
                 </a>
-                <a href="#" class="button button-secondary">
-                    <i class="fas fa-file-pdf"></i> PDF (Coming soon)
+                <a href="https://arxiv.org/pdf/2605.03941" class="button button-secondary" target="_blank" rel="noopener noreferrer">
+                    <i class="fas fa-file-pdf"></i> PDF
                 </a>
-                <a href="#" class="button button-secondary">
-                    <i class="fab fa-github"></i> Code (Coming soon)
+                <a href="https://github.com/EmbodiedCity/iWorld-Bench" class="button button-secondary" target="_blank" rel="noopener noreferrer">
+                    <i class="fab fa-github"></i> Code
                 </a>
-                <a href="#" class="button button-secondary">
-                    <i class="fas fa-database"></i> Dataset (Coming soon)
+                <a href="https://huggingface.co/datasets/EmbodiedCity/iWorld-Bench-Dataset" class="button button-secondary" target="_blank" rel="noopener noreferrer">
+                    <i class="fas fa-database"></i> Dataset
                 </a>
-                <a href="#" class="button button-secondary">
-                    <i class="fas fa-trophy"></i> Leaderboard (Coming soon)
+                <a href="https://huggingface.co/spaces/EmbodiedCity/iWorld-Bench" class="button button-secondary" target="_blank" rel="noopener noreferrer">
+                    <i class="fas fa-trophy"></i> Leaderboard
                 </a>
             </div>
         </div>
@@ -819,20 +896,34 @@
     <!-- Authors & Date - New Format -->
     <div class="byline-section">
         <div class="byline-container">
-            <div class="byline-column">
-                <h3>Authors</h3>
-                <p><a href="#" class="author-link">Anonymous Author<sup>1</sup></a></p>
+            <div class="byline-column byline-authors-column">
+                <h3 class="byline-heading-short-rule">Authors</h3>
+                <div class="authors-rows">
+                    <span class="author-link">Jianjie Fang<sup>*</sup><sup>1</sup></span>
+                    <span class="author-link">Yingshan Lei<sup>*</sup><sup>1</sup></span>
+                    <span class="author-link">Qin Wan<sup>*</sup><sup>1</sup></span>
+                    <span class="author-link">Ziyou Wang<sup>2</sup></span>
+                    <span class="author-link">Yuchao Huang<sup>2</sup></span>
+                    <span class="author-link">Yongyan Xu<sup>3</sup></span>
+                    <span class="author-link">Baining Zhao<sup>1</sup></span>
+                    <span class="author-link">Weichen Zhang<sup>1</sup></span>
+                    <span class="author-link">Chen Gao<sup>1</sup></span>
+                    <span class="author-link">Xinlei Chen<sup>1</sup></span>
+                    <span class="author-link">Yong Li<sup>1</sup></span>
+                </div>
             </div>
         </div>
         <div class="byline-container">
-            <div class="byline-column">
-                <h3>Affiliations</h3>
-                <p><a href="#" class="affiliation-link">Anonymous Institution<sup>1</sup></a></p>
+            <div class="byline-column byline-affiliations-column">
+                <h3 class="byline-heading-short-rule">Affiliations</h3>
+                <p><span class="affiliation-link"><sup>1</sup> Tsinghua University, China</span></p>
+                <p><span class="affiliation-link"><sup>2</sup> Northeastern University, China</span></p>
+                <p><span class="affiliation-link"><sup>3</sup> South China University of Technology, China</span></p>
             </div>
         </div>
         <div class="byline-container">
-            <div class="byline-column">
-                <h3>Date</h3>
+            <div class="byline-column byline-date-column">
+                <h3 class="byline-heading-short-rule">Date</h3>
                 <p>2026</p>
             </div>
         </div>
@@ -1510,12 +1601,14 @@
                 <button class="copy-btn" onclick="copyBibtex()">
                     <i class="fas fa-copy"></i> Copy
                 </button>
-                <pre id="bibtex-content">@inproceedings{iworldbench2026,
+                <pre id="bibtex-content">@misc{iworldbench2026,
     title={iWorld-Bench: A Benchmark for Interactive World Models with a Unified Action Generation Framework},
-    author={Anonymous Authors},
+    author={Fang, Jianjie and Lei, Yingshan and Wan, Qin and Wang, Ziyou and Huang, Yuchao and Xu, Yongyan and Zhao, Baining and Zhang, Weichen and Gao, Chen and Chen, Xinlei and Li, Yong},
     year={2026},
-    organization={Anonymous Organization}
-    }</pre>
+    eprint={2605.03941},
+    archivePrefix={arXiv},
+    url={https://arxiv.org/abs/2605.03941}
+}</pre>
             </div>
         </section>
     </d-article>
@@ -1523,7 +1616,10 @@
     <!-- Footer -->
     <footer>
         <p>
-            <i class="fas fa-envelope"></i> Contact: <a href="mailto:Anonymous@xxx.edu">Anonymous@xxx.edu</a>
+            <i class="fas fa-envelope"></i> Contact:
+            <a href="mailto:chgao96@gmail.com">Chen Gao</a>,
+            <a href="mailto:chen.xinlei@sz.tsinghua.edu.cn">Xinlei Chen</a>,
+            <a href="mailto:liyong07@tsinghua.edu.cn">Yong Li</a>
         </p>
         <p style="margin-top: 0.5rem;">
             &copy; 2026 iWorld-Bench. All rights reserved.
